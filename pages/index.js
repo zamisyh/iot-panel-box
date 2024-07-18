@@ -33,23 +33,21 @@ const Home = () => {
       client.subscribe("sensor/status/#", { qos: 0 });
     });
 
-    setTimeout(() => {
-      client.on("message", function (topic, payload) {
-        if (topic === "sensor/status/") {
-          if (payload == 1) {
-            $("#sensor-status")
-              .text("NYALA")
-              .addClass("text-success")
-              .removeClass("text-danger");
-          } else {
-            $("#sensor-status")
-              .text("MATI")
-              .addClass("text-danger")
-              .removeClass("text-success");
-          }
+    client.on("message", function (topic, payload) {
+      if (topic === "sensor/status/") {
+        if (payload == 1) {
+          $("#sensor-status")
+            .text("NYALA")
+            .addClass("text-success")
+            .removeClass("text-danger");
+        } else {
+          $("#sensor-status")
+            .text("MATI")
+            .addClass("text-danger")
+            .removeClass("text-success");
         }
-      });
-    }, 2000);
+      }
+    });
   }, []);
 
   return (
@@ -58,7 +56,9 @@ const Home = () => {
         <div className="row justify-content-center">
           <div className="col-lg-12 text-center mb-4 mt-5">
             <h5>Monitoring Panel Box Mobile</h5>
-            <h6><b>By Next.js v14</b></h6>
+            <h6>
+              <b>By Next.js v14</b>
+            </h6>
           </div>
           <div className="col-10 col-lg-4 col-md-6 mb-4">
             <div className="card card-custom">
