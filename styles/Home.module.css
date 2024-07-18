@@ -1,0 +1,11 @@
+/* tambahkan ini ke file CSS Anda, misalnya styles/global.css */
+.centered-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* full height */
+}
+
+.card-custom {
+  padding: 2rem; /* padding */
+}
