@@ -28,12 +28,21 @@ const Home = () => {
     const client = mqtt.connect(host, options);
 
     client.on("connect", () => {
-      console.log("Terhubung");
+      console.log(`Terhubung pada ${new Date().toISOString()}`);
       $("#mqtt-status").text("TERHUBUNG").addClass("text-success");
-      client.subscribe("sensor/status/#", { qos: 0 });
+      client.subscribe("sensor/status/#", { qos: 0 }, (err) => {
+        if (err) {
+          console.log(`Error subscribing: ${err}`);
+        } else {
+          console.log(`Subscribed pada ${new Date().toISOString()}`);
+        }
+      });
     });
 
     client.on("message", function (topic, payload) {
+      console.log(
+        `Message received pada ${new Date().toISOString()}: Topic: ${topic}, Payload: ${payload}`
+      );
       if (topic === "sensor/status/") {
         if (payload == 1) {
           $("#sensor-status")
