@@ -5,46 +5,64 @@ import mqtt from "mqtt";
 
 const Home = () => {
   useEffect(() => {
-    const clientId = Math.random().toString(16).substr(2, 8);
-    const host = "wss://sysyphean-ad4aip.a01.euc1.aws.hivemq.cloud:8884/mqtt";
+    const clientId = "mqttjs_" + Math.random().toString(16).substr(2, 8);
+
+    const host = "ws://broker.emqx.io:8083/mqtt";
 
     const options = {
-      keepalive: 30,
-      clientId: "ece22cdc-261e-43cf-8f36-9d01acda55c0-sysyphean-1",
-      username: "sysyphean",
-      password: "123.Qwerty",
+      keepalive: 60,
+      clientId: clientId,
       protocolId: "MQTT",
       protocolVersion: 4,
       clean: true,
       reconnectPeriod: 1000,
       connectTimeout: 30 * 1000,
+      will: {
+        topic: "WillMsg",
+        payload: "Connection Closed abnormally..!",
+        qos: 0,
+        retain: false,
+      },
     };
 
-    console.log("Menghubungkan ke Broker");
-
     $("#mqtt-status").text("LOADING...");
-    $("#sensor-status").text("WAITING...");
+    $("#sensor-status").text("WATING...");
 
+    console.log("Connecting mqtt client");
     const client = mqtt.connect(host, options);
 
+    client.on("error", (err) => {
+      console.log("Connection error: ", err);
+      client.end();
+    });
+
+    client.on("reconnect", () => {
+      console.log("Reconnecting...");
+    });
+
     client.on("connect", () => {
-      console.log(`Terhubung pada ${new Date().toISOString()}`);
+      console.log("Client connected:" + clientId);
+
       $("#mqtt-status").text("TERHUBUNG").addClass("text-success");
-      client.subscribe("sensor/status/#", { qos: 0 }, (err) => {
-        if (err) {
-          console.log(`Error subscribing: ${err}`);
-        } else {
-          console.log(`Subscribed pada ${new Date().toISOString()}`);
-        }
+
+      // Subscribe
+      client.subscribe("sysyphean_prj1/#", {
+        qos: 0,
       });
     });
 
-    client.on("message", function (topic, payload) {
+    client.on("message", (topic, message, packet) => {
       console.log(
-        `Message received pada ${new Date().toISOString()}: Topic: ${topic}, Payload: ${payload}`
+        "Received Message: " +
+          message.toString() +
+          "\nOn topic: " +
+          topic +
+          "\n On Packet:" +
+          packet
       );
-      if (topic === "sensor/status/") {
-        if (payload == 1) {
+
+      if (topic == "sysyphean_prj1/relay") {
+        if (message.toString() == 1) {
           $("#sensor-status")
             .text("NYALA")
             .addClass("text-success")
